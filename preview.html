@@ -1,0 +1,333 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#f4f3f8">
+  <meta name="color-scheme" content="light">
+  <link rel="icon" href="data:,">
+  <title>投资建议书｜iPhone 预览 V5.3</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --device-width: 511px;
+      --device-height: 968px;
+      --screen-x: 59px;
+      --screen-y: 58px;
+      --screen-width: 393px;
+      --screen-height: 852px;
+      --screen-radius: 42px;
+      --source-width: 375px;
+      --content-scale: 1.048;
+      --device-scale: 1;
+    }
+
+    * { box-sizing: border-box; }
+
+    html,
+    body {
+      width: 100%;
+      height: 100%;
+      margin: 0;
+      overflow: hidden;
+      background: #f4f3f8;
+      color: #17171a;
+      font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Helvetica Neue", Arial, sans-serif;
+    }
+
+    button,
+    a { font: inherit; }
+
+    .preview-stage {
+      position: relative;
+      display: grid;
+      width: 100%;
+      height: 100%;
+      min-height: 100dvh;
+      place-items: center;
+      padding: 24px;
+      overflow: hidden;
+      background:
+        radial-gradient(circle at 50% 20%, rgba(255, 255, 255, .98) 0, rgba(255, 255, 255, .82) 20%, rgba(244, 243, 248, .2) 54%),
+        linear-gradient(145deg, #eeeff4 0%, #f7f7fa 48%, #ececf2 100%);
+    }
+
+    .preview-stage::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background-image: radial-gradient(rgba(23, 23, 26, .07) .55px, transparent .55px);
+      background-size: 6px 6px;
+      opacity: .15;
+    }
+
+    .phone-scale-box {
+      position: relative;
+      z-index: 1;
+      width: calc(var(--device-width) * var(--device-scale));
+      height: calc(var(--device-height) * var(--device-scale));
+      filter: drop-shadow(0 28px 36px rgba(24, 26, 35, .18));
+    }
+
+    .phone-device {
+      position: absolute;
+      inset: 0 auto auto 0;
+      width: var(--device-width);
+      height: var(--device-height);
+      transform: scale(var(--device-scale));
+      transform-origin: top left;
+    }
+
+    .phone-bezel {
+      position: absolute;
+      z-index: 3;
+      inset: 0;
+      display: block;
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      pointer-events: none;
+      user-select: none;
+      -webkit-user-drag: none;
+    }
+
+    .device-screen {
+      position: absolute;
+      z-index: 1;
+      left: var(--screen-x);
+      top: var(--screen-y);
+      width: var(--screen-width);
+      height: var(--screen-height);
+      overflow: hidden;
+      border-radius: var(--screen-radius);
+      background: #f3f5f9;
+      box-shadow: inset 0 0 0 1px rgba(0, 0, 0, .08);
+    }
+
+    .ios-statusbar {
+      position: absolute;
+      z-index: 2;
+      top: 0;
+      left: 0;
+      display: flex;
+      width: 100%;
+      height: 54px;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 34px 0 36px;
+      color: #111;
+      font-size: 15px;
+      font-weight: 600;
+      line-height: 1;
+      pointer-events: none;
+    }
+
+    .ios-statusbar__icons {
+      display: block;
+      width: 79px;
+      height: 13px;
+      user-select: none;
+      -webkit-user-drag: none;
+    }
+
+    .home-indicator {
+      position: absolute;
+      z-index: 2;
+      right: 0;
+      bottom: 0;
+      left: 0;
+      display: block;
+      width: 100%;
+      height: 34px;
+      pointer-events: none;
+    }
+
+    .page-frame {
+      position: absolute;
+      z-index: 1;
+      left: 0;
+      top: 54px;
+      display: block;
+      width: var(--source-width);
+      margin: 0;
+      border: 0;
+      background: #f3f5f9;
+      transform: scale(var(--content-scale));
+      transform-origin: top left;
+    }
+
+    .loading-note,
+    .load-fallback {
+      position: absolute;
+      z-index: 0;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      white-space: nowrap;
+      color: #919199;
+      font-size: 13px;
+    }
+
+    .load-fallback {
+      z-index: 4;
+      display: none;
+      padding: 9px 14px;
+      border: 1px solid rgba(23, 23, 26, .12);
+      border-radius: 999px;
+      background: rgba(255, 255, 255, .94);
+      color: #17171a;
+      text-decoration: none;
+      box-shadow: 0 6px 20px rgba(23, 23, 26, .12);
+    }
+
+    .preview-stage[data-load-state="timeout"] .load-fallback { display: block; }
+    .preview-stage[data-load-state="ready"] .loading-note { display: none; }
+
+    .preview-stage[data-view-mode="wechat"] {
+      display: block;
+      padding: 0;
+      background: #f3f5f9;
+    }
+
+    .preview-stage[data-view-mode="wechat"]::before,
+    .preview-stage[data-view-mode="wechat"] .phone-bezel,
+    .preview-stage[data-view-mode="wechat"] .ios-statusbar,
+    .preview-stage[data-view-mode="wechat"] .home-indicator {
+      display: none;
+    }
+
+    .preview-stage[data-view-mode="wechat"] .phone-scale-box,
+    .preview-stage[data-view-mode="wechat"] .phone-device,
+    .preview-stage[data-view-mode="wechat"] .device-screen {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      border-radius: 0;
+      filter: none;
+      transform: none;
+      box-shadow: none;
+    }
+
+    .preview-stage[data-view-mode="wechat"] .page-frame {
+      top: 0;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      * { scroll-behavior: auto !important; }
+    }
+  </style>
+</head>
+<body>
+  <main class="preview-stage" id="preview-stage" data-view-mode="preview" data-load-state="loading" aria-label="投资建议书 iPhone 预览">
+    <div class="phone-scale-box" id="phone-scale-box">
+      <div class="phone-device" id="phone-device">
+        <div class="device-screen" id="device-screen">
+          <span class="loading-note">正在载入投资建议书…</span>
+          <div class="ios-statusbar" aria-hidden="true">
+            <span>9:41</span>
+            <img class="ios-statusbar__icons" src="assets/preview/ios-status-icons.svg" alt="">
+          </div>
+          <iframe class="page-frame" id="page-frame" title="投资建议书 V5.3 交互页面" loading="eager"></iframe>
+          <svg class="home-indicator" viewBox="0 0 393 34" fill="none" aria-hidden="true">
+            <rect x="129.5" y="21" width="134" height="5" rx="2.5" fill="black"></rect>
+          </svg>
+        </div>
+        <img class="phone-bezel" src="assets/preview/iphone-bezel.png" alt="" aria-hidden="true" draggable="false">
+      </div>
+    </div>
+    <a class="load-fallback" id="load-fallback" href="#">直接打开投资建议书</a>
+  </main>
+
+  <script>
+    (() => {
+      const DEVICE_WIDTH = 511;
+      const DEVICE_HEIGHT = 968;
+      const SCREEN_WIDTH = 393;
+      const SCREEN_HEIGHT = 852;
+      const STATUSBAR_HEIGHT = 54;
+      const SOURCE_WIDTH = 375;
+      const CONTENT_SCALE = SCREEN_WIDTH / SOURCE_WIDTH;
+      const stage = document.getElementById('preview-stage');
+      const frame = document.getElementById('page-frame');
+      const fallback = document.getElementById('load-fallback');
+      const params = new URLSearchParams(window.location.search);
+      const forcedView = params.get('view') || params.get('mode');
+      const standalone = forcedView === 'wechat' || forcedView === 'mobile';
+
+      const hero = params.get('hero') || 'evening';
+      const version = params.get('v') || '';
+      const publicWrapper = /(?:^|\/)preview\.html$/i.test(window.location.pathname);
+      const source = publicWrapper
+        ? new URL('./', window.location.href)
+        : new URL('./投资建议书｜图像边界与分割线精修版-v5.3.html', window.location.href);
+      source.searchParams.set('hero', hero);
+      source.searchParams.set('embedded', '1');
+      if (version) source.searchParams.set('v', version);
+
+      stage.dataset.viewMode = standalone ? 'wechat' : 'preview';
+      document.documentElement.style.setProperty('--content-scale', String(CONTENT_SCALE));
+      frame.src = source.href;
+      fallback.href = source.href;
+
+      const updateLayout = () => {
+        if (standalone) {
+          const scale = window.innerWidth / SOURCE_WIDTH;
+          document.documentElement.style.setProperty('--content-scale', String(scale));
+          document.documentElement.style.setProperty('--device-scale', '1');
+          frame.style.width = `${SOURCE_WIDTH}px`;
+          frame.style.height = `${Math.ceil(window.innerHeight / scale)}px`;
+          return;
+        }
+
+        const horizontal = (window.innerWidth - 48) / DEVICE_WIDTH;
+        const vertical = (window.innerHeight - 48) / DEVICE_HEIGHT;
+        const deviceScale = Math.max(.42, Math.min(horizontal, vertical, 1));
+        document.documentElement.style.setProperty('--device-scale', String(deviceScale));
+        document.documentElement.style.setProperty('--content-scale', String(CONTENT_SCALE));
+        frame.style.width = `${SOURCE_WIDTH}px`;
+        frame.style.height = `${(SCREEN_HEIGHT - STATUSBAR_HEIGHT) / CONTENT_SCALE}px`;
+      };
+
+      let loadTimer = window.setTimeout(() => {
+        if (stage.dataset.loadState !== 'ready') stage.dataset.loadState = 'timeout';
+      }, 9000);
+
+      frame.addEventListener('load', () => {
+        try {
+          const childDocument = frame.contentDocument;
+          if (!childDocument?.getElementById('app') || !childDocument.getElementById('intro-title')) {
+            throw new Error('内嵌页关键内容尚未就绪');
+          }
+          window.clearTimeout(loadTimer);
+          stage.dataset.loadState = 'ready';
+          if (childDocument && !childDocument.documentElement.dataset.previewGuarded) {
+            childDocument.documentElement.dataset.previewGuarded = 'true';
+            childDocument.addEventListener('click', (event) => {
+              const target = event.target && typeof event.target.closest === 'function'
+                ? event.target.closest('#back-button')
+                : null;
+              if (!target) return;
+              event.preventDefault();
+              event.stopImmediatePropagation();
+              const toast = childDocument.getElementById('toast');
+              if (!toast) return;
+              toast.textContent = '已经是当前入口';
+              toast.classList.add('is-visible');
+              window.setTimeout(() => toast.classList.remove('is-visible'), 1500);
+            }, true);
+          }
+        } catch (error) {
+          console.warn('无法安装内嵌页返回保护', error);
+          stage.dataset.loadState = 'timeout';
+        }
+      });
+
+      window.addEventListener('resize', updateLayout, { passive: true });
+      if (window.visualViewport) window.visualViewport.addEventListener('resize', updateLayout, { passive: true });
+      updateLayout();
+    })();
+  </script>
+</body>
+</html>
